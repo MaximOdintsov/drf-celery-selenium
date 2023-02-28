@@ -1,0 +1,74 @@
+version: '3.9'
+
+services:
+
+  backend:
+    container_name: backend_container
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: always
+    command: sh -c "cd backend && 
+                    gunicorn --bind 0.0.0.0:8000 my_site.wsgi"
+    volumes:
+      - static_volume:/home/user/web/backend/static/
+      - ./backend:/home/user/web/backend
+    expose:
+      - 8000
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    container_name: db_container
+    image: postgres:15.2-alpine
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${SQL_USER}
+      - POSTGRES_PASSWORD=${SQL_PASSWORD}
+      - POSTGRES_DB=${SQL_DATABASE}
+
+  nginx:
+    container_name: nginx_container
+    build: ./nginx
+    restart: always
+    ports:
+      - "1337:80"
+    volumes:
+      - static_volume:/home/user/web/backend/static/
+    depends_on:
+      - backend
+
+  redis:
+    container_name: redis_container
+    image: redis:7.0.8-alpine
+
+  celery:
+    container_name: celery_container
+    restart: always
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: celery -A my_site worker -l info
+    volumes:
+      - ./backend:/home/user/web/backend
+    environment:
+      - DB_HOST=${SQL_HOST}
+      - DB_NAME=${SQL_DATABASE}
+      - DB_USER=${SQL_USER}
+      - DB_PASS=${SQL_PASSWORD}
+    depends_on:
+      - db
+      - redis
+      - backend
+
+volumes:
+  postgres_data:
+  static_volume:
