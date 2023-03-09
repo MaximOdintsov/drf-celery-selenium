@@ -3,6 +3,6 @@ from .views import RunParserView, RunBotView
 
 
 urlpatterns = [
-    path('run-hh-parser', RunParserView.as_view(), name='run_hh_parser'),
-    path('run-hh-bot', RunBotView.as_view(), name='run_hh_bot'),
+    path('run-parser/', RunParserView.as_view(), name='run_parser'),
+    path('run-bot/', RunBotView.as_view(), name='run_bot'),
 ]

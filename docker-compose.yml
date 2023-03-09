@@ -16,9 +16,10 @@ services:
     expose:
       - 8000
     env_file:
-      - .env
+      - .env.prod
     depends_on:
       - db
+      - selenium
 
   db:
     container_name: db_container
@@ -29,7 +30,7 @@ services:
     expose:
       - 5432
     env_file:
-      - .env
+      - .env.prod
     environment:
       - POSTGRES_USER=${SQL_USER}
       - POSTGRES_PASSWORD=${SQL_PASSWORD}
@@ -46,17 +47,39 @@ services:
     depends_on:
       - backend
 
+  selenium:
+    container_name: selenium_container
+    image: selenium/hub:4.8
+    restart: always
+    volumes:
+      - ./backend:/home/user/web/backend
+    ports:
+      - "4444:4444"
+
+  chrome:
+    container_name: chrome_container
+    image: selenium/node-chrome:110.0
+    restart: always
+    environment:
+      - SE_EVENT_BUS_HOST=selenium
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+    depends_on:
+      - selenium
+
   redis:
     container_name: redis_container
+    restart: always
     image: redis:7.0.8-alpine
 
-  celery:
-    container_name: celery_container
+  celery-worker:
+    container_name: celery_worker_container
     restart: always
     build:
       context: .
       dockerfile: backend/Dockerfile
-    command: celery -A my_site worker -l info
+    command: sh -c "cd backend &&
+                    celery -A my_site worker -l info"
     volumes:
       - ./backend:/home/user/web/backend
     environment:
@@ -64,10 +87,32 @@ services:
       - DB_NAME=${SQL_DATABASE}
       - DB_USER=${SQL_USER}
       - DB_PASS=${SQL_PASSWORD}
+    env_file:
+      - .env.prod
     depends_on:
-      - db
       - redis
-      - backend
+      - db
+
+  celery-beat:
+    container_name: celery_beat_container
+    restart: always
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: sh -c "cd backend &&
+                    celery -A my_site beat -l info"
+    volumes:
+      - ./backend:/home/user/web/backend
+    environment:
+      - DB_HOST=${SQL_HOST}
+      - DB_NAME=${SQL_DATABASE}
+      - DB_USER=${SQL_USER}
+      - DB_PASS=${SQL_PASSWORD}
+    env_file:
+      - .env.prod
+    depends_on:
+      - redis
+      - db
 
 volumes:
   postgres_data:

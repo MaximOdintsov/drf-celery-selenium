@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class JobVacancy(models.Model):
@@ -7,6 +8,7 @@ class JobVacancy(models.Model):
     company_name = models.CharField('Company name', max_length=255, null=True, blank=True)
     company_link = models.CharField('Company link', max_length=255, null=True, blank=True)
     responded = models.BooleanField('Responded to a vacancy', default=False)
+    create = models.DateTimeField('Time of creation', default=timezone.now)
 
     class Meta:
         verbose_name = 'Job vacancy'
