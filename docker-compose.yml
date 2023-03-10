@@ -53,6 +53,8 @@ services:
     restart: always
     volumes:
       - ./backend:/home/user/web/backend
+    environment:
+      - SE_NODE_GRID_URL=http://localhost:4445/wd/hub
     ports:
       - "4444:4444"
 
@@ -60,10 +62,14 @@ services:
     container_name: chrome_container
     image: selenium/node-chrome:110.0
     restart: always
+    volumes:
+      - ./backend:/home/user/web/backend
     environment:
       - SE_EVENT_BUS_HOST=selenium
       - SE_EVENT_BUS_PUBLISH_PORT=4442
       - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_PORT=4444
+      - SE_NODE_GRID_URL=http://selenium:4445/wd/hub
     depends_on:
       - selenium
 

@@ -17,9 +17,7 @@ from .models import JobVacancy
 
 
 class DataParsing:
-    """
-    Collects data from hh.ru, validation and returns it
-    """
+    """ Collects data from hh.ru, validation and returns it """
 
     search_text_list = None
 
@@ -27,9 +25,8 @@ class DataParsing:
         self.user_agent = fake_useragent.UserAgent()
 
     def get_page_count(self, text):
-        """
-        Counts the number of pages
-        """
+        """ Counts the number of pages """
+
         data = requests.get(
             url=f'https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=true&text={text}&page=1',
             headers={'user-agent': self.user_agent.random},
@@ -46,9 +43,8 @@ class DataParsing:
             return Response(status.HTTP_400_BAD_REQUEST)
 
     def get_content_from_page(self, text, page):
-        """
-        Parses all data from the page
-        """
+        """ Parses all data from the page """
+
         data = requests.get(
             url=f'https://hh.ru/search/vacancy?search_field=name&search_field=company_name&search_field=description&enable_snippets=true&text={text}&page={page}',
             headers={'user-agent': self.user_agent.random},
@@ -119,21 +115,12 @@ class SendFeedbackToTheJob:
 
     def __init__(self):
         if PRODUCTION_V:
-            # proxy = webdriver.Proxy()
-            # proxy.http_proxy('127.0.0.1:8000')
-            # proxy.no_proxy('localhost', '127.0.0.1')
-
             options = webdriver.ChromeOptions()
-            # options.add_argument('--proxy-server=%s' % PROXY)
-
             options.add_argument('no-sandbox')
-            # options.add_argument('--window-size=800,600')
-            # options.add_argument('--disable-gpu')
+            options.add_argument('--window-size=800,600')
+            options.add_argument('--disable-gpu')
             options.add_argument('--disable-dev-shm-usage')
-
-            #
             options.set_capability('browserVersion', '110.0')
-            #
 
             self.webdriver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
                                               desired_capabilities=DesiredCapabilities.CHROME,
@@ -146,22 +133,20 @@ class SendFeedbackToTheJob:
         try:
             self.load_cookies()
         except Exception:
-            self.login()
-            self.dump_cookie()
-            self.load_cookies()
+            self.login_and_dump_cookies()
 
-    def login(self):
+    def login_and_dump_cookies(self):
         self.webdriver.get('https://hh.ru/account/login')
         time.sleep(60)
 
-    def load_cookies(self):
-        for cookie in pickle.load(open('parser_hh/cookies', 'rb')):
-            self.webdriver.add_cookie(cookie)
+    def dump_cookies(self):
+        pickle.dump(self.webdriver.get_cookies(), open('parser_hh/cookies.pkl', 'wb'))
         time.sleep(5)
 
-    def dump_cookie(self):
-        pickle.dump(self.webdriver.get_cookies(), open('parser_hh/cookies', 'wb'))
-        time.sleep(5)
+    def load_cookies(self):
+        for cookie in pickle.load(open('parser_hh/cookies.pkl', 'rb')):
+            self.webdriver.add_cookie(cookie)
+        time.sleep(15)
         self.webdriver.refresh()
 
     @staticmethod
@@ -220,6 +205,7 @@ class SendFeedbackToTheJob:
 
     def job_from_another_country(self):
         """ Clicks on "Send Anyway" if the job is in another country """
+
         try:
             self.webdriver.find_element(
                 By.CSS_SELECTOR, 'a[data-qa="vacancy-response-link-top"]'
@@ -230,6 +216,7 @@ class SendFeedbackToTheJob:
 
     def job_response(self):
         """ Clicks to send a response to the vacancy """
+
         try:
             self.webdriver.find_element(
                 By.CSS_SELECTOR, 'button[data-qa="relocation-warning-confirm"]'
