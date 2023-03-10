@@ -100,13 +100,8 @@ services:
                     celery -A my_site beat -l info"
     volumes:
       - ./backend:/home/user/web/backend
-    environment:
-      - DB_HOST=${SQL_HOST}
-      - DB_NAME=${SQL_DATABASE}
-      - DB_USER=${SQL_USER}
-      - DB_PASS=${SQL_PASSWORD}
     env_file:
-      - ./.env.prod
+      - ./.env.prod.db
     depends_on:
       - redis
       - db
