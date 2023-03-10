@@ -41,7 +41,7 @@ services:
     build: ./nginx
     restart: always
     ports:
-      - "1337:80"
+      - "80:80"
     volumes:
       - static_volume:/home/user/web/backend/static/
     depends_on:
