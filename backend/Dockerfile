@@ -61,6 +61,7 @@ COPY . $APP_HOME
 
 # chown all the files to the app user
 RUN chown -R user:user $HOME
+RUN chown user:user -R $APP_HOME/backend/parser_hh
 
 # change to the user
 USER user
