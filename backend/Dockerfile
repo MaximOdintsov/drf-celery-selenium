@@ -59,11 +59,11 @@ RUN chmod +x  $APP_HOME/entrypoint.sh
 # copy project
 COPY . $APP_HOME
 
-# chown all the files to the app user
-RUN chown -R user:user $HOME
-RUN chmod 777 $APP_HOME/backend/parser_hh
-# change to the user
-USER user
+## chown all the files to the app user
+#RUN chown -R user:user $HOME
+#RUN chmod 777 $APP_HOME/backend/parser_hh
+## change to the user
+#USER user
 
 # run entrypoint.sh
 ENTRYPOINT ["/home/user/web/entrypoint.sh"]
