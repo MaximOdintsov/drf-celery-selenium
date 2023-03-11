@@ -116,10 +116,12 @@ class SendFeedbackToTheJob:
     def __init__(self):
         if PRODUCTION_V:
             options = webdriver.ChromeOptions()
-            options.add_argument('no-sandbox')
+            options.add_argument('--no-sandbox')
             options.add_argument('--window-size=800,600')
-            options.add_argument('--disable-gpu')
+            # options.add_argument('--disable-gpu')
+
             options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--remote-debugging-port=7900')
             options.set_capability('browserVersion', '110.0')
 
             self.webdriver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
