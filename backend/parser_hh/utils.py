@@ -122,10 +122,11 @@ class SendFeedbackToTheJob:
 
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--remote-debugging-port=7900')
+            options.add_argument('--remote-debugging-address=0.0.0.0')
             options.set_capability('browserVersion', '110.0')
 
             self.webdriver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
-                                              desired_capabilities=DesiredCapabilities.CHROME,
+                                              desired_capabilities=options.to_capabilities(),
                                               options=options)
         else:
             self.webdriver = webdriver.Chrome()
