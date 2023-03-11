@@ -115,7 +115,7 @@ class SendFeedbackToTheJob:
 
     def __init__(self):
         if PRODUCTION_V:
-            options = webdriver.ChromeOptions()
+            options = webdriver.FirefoxOptions()
             options.add_argument('--no-sandbox')
             options.add_argument('--window-size=800,600')
             options.add_argument('--disable-gpu')
