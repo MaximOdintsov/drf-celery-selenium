@@ -118,16 +118,25 @@ class SendFeedbackToTheJob:
             options = webdriver.ChromeOptions()
             options.add_argument('--no-sandbox')
             options.add_argument('--window-size=800,600')
-            # options.add_argument('--disable-gpu')
+            options.add_argument('--disable-gpu')
 
             options.add_argument('--disable-dev-shm-usage')
+            options.set_capability('browserVersion', '110.0')
+
             options.add_argument('--remote-debugging-port=7900')
             options.add_argument('--remote-debugging-address=0.0.0.0')
-            options.set_capability('browserVersion', '110.0')
+            options.add_argument('--disable-browser-side-navigation')
+            options.add_argument('--disable-features=VizDisplayCompositor')
+            options.add_argument('--disable-blink-features=AutomationControlled')
+            options.add_argument('--disable-infobars')
+            options.add_argument('--headless')
+            options.add_argument('--disable-extensions')
 
             self.webdriver = webdriver.Remote(command_executor='http://selenium:4444/wd/hub',
                                               desired_capabilities=options.to_capabilities(),
                                               options=options)
+            self.webdriver.set_page_load_timeout(300)
+            self.webdriver.implicitly_wait(300)
         else:
             self.webdriver = webdriver.Chrome()
 
